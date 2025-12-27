@@ -1,6 +1,9 @@
-# This file stores configurations for your Shopify app.
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-scopes = "read_products,write_products,read_content,write_content,read_metaobjects,write_metaobjects"
+client_id = "18ce3b16c31159f2a867c5331d38ea23"
+name = "coen-translation"
+application_url = "https://example.com"
+embedded = true
 
 [webhooks]
 api_version = "2024-10"
@@ -24,29 +27,17 @@ api_version = "2024-10"
   topics = ["collections/create", "collections/update"]
   uri = "/webhooks/collections/update"
 
-  [[webhooks.subscriptions]]
-  topics = ["pages/create", "pages/update"]
-  uri = "/webhooks/pages/update"
-
-  [[webhooks.subscriptions]]
-  topics = ["blogs/create", "blogs/update"]
-  uri = "/webhooks/blogs/update"
-
   # Billing webhooks
   [[webhooks.subscriptions]]
   topics = ["app_subscriptions/update"]
   uri = "/webhooks/app_subscriptions/update"
 
-  # Mandatory compliance topic for public apps only
-  # See: https://shopify.dev/docs/apps/build/privacy-law-compliance
-  # [[webhooks.subscriptions]]
-  # uri = "/webhooks/customers/data_request"
-  # compliance_topics = ["customers/data_request"]
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products,write_products,read_content,write_content,read_metaobjects,write_metaobjects,read_markets"
 
-  # [[webhooks.subscriptions]]
-  # uri = "/webhooks/customers/redact"
-  # compliance_topics = ["customers/redact"]
+[auth]
+redirect_urls = [ "https://example.com/api/auth" ]
 
-  # [[webhooks.subscriptions]]
-  # uri = "/webhooks/shop/redact"
-  # compliance_topics = ["shop/redact"]
+[build]
+automatically_update_urls_on_dev = true

@@ -63,7 +63,7 @@ export default function Index() {
                         Subscription
                       </Text>
                       <Badge
-                        status={
+                        tone={
                           subscription.status === "active"
                             ? "success"
                             : "attention"
@@ -83,13 +83,13 @@ export default function Index() {
                         ).toLocaleDateString()}
                       </Text>
                     )}
-                    <Button url="/app/subscription/manage" plain>
+                    <Button url="/app/subscription/manage" variant="plain">
                       Manage Subscription
                     </Button>
                   </BlockStack>
                 </Card>
               ) : (
-                <Banner status="warning">
+                <Banner tone="warning">
                   No active subscription.{" "}
                   <a href="/app/subscription/plans">Choose a plan</a> to get
                   started.
@@ -177,7 +177,7 @@ export default function Index() {
                     <Text as="h2" variant="headingMd">
                       Languages
                     </Text>
-                    <Button url="/app/languages" plain>
+                    <Button url="/app/languages" variant="plain">
                       Manage
                     </Button>
                   </InlineStack>
@@ -195,6 +195,9 @@ export default function Index() {
                 <Text as="h2" variant="headingMd">
                   Quick Actions
                 </Text>
+                <Button url="/app/translations/select" fullWidth variant="primary">
+                  New Translation
+                </Button>
                 <Button url="/app/translations" fullWidth>
                   View All Translations
                 </Button>

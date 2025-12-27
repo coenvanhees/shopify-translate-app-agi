@@ -1,9 +1,41 @@
 -- CreateTable
+CREATE TABLE "Session" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "shop" TEXT NOT NULL,
+    "state" TEXT NOT NULL,
+    "isOnline" BOOLEAN NOT NULL DEFAULT false,
+    "scope" TEXT,
+    "expires" DATETIME,
+    "accessToken" TEXT NOT NULL,
+    "userId" BIGINT,
+    "firstName" TEXT,
+    "lastName" TEXT,
+    "email" TEXT,
+    "accountOwner" BOOLEAN NOT NULL DEFAULT false,
+    "locale" TEXT,
+    "collaborator" BOOLEAN DEFAULT false,
+    "emailVerified" BOOLEAN DEFAULT false,
+    "refreshToken" TEXT,
+    "refreshTokenExpires" DATETIME
+);
+
+-- CreateTable
 CREATE TABLE "Language" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "code" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "isDefault" BOOLEAN NOT NULL DEFAULT false,
+    "shop" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Market" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "shopifyId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "enabled" BOOLEAN NOT NULL DEFAULT true,
     "shop" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
@@ -16,12 +48,15 @@ CREATE TABLE "Translation" (
     "resourceId" TEXT NOT NULL,
     "field" TEXT NOT NULL,
     "languageCode" TEXT NOT NULL,
+    "marketId" TEXT,
     "translatedValue" TEXT NOT NULL,
     "shop" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'draft',
+    "autoTranslated" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "Translation_languageCode_shop_fkey" FOREIGN KEY ("languageCode", "shop") REFERENCES "Language" ("code", "shop") ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT "Translation_languageCode_shop_fkey" FOREIGN KEY ("languageCode", "shop") REFERENCES "Language" ("code", "shop") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "Translation_marketId_fkey" FOREIGN KEY ("marketId") REFERENCES "Market" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -31,6 +66,7 @@ CREATE TABLE "TranslationJob" (
     "status" TEXT NOT NULL,
     "sourceLanguage" TEXT NOT NULL,
     "targetLanguage" TEXT NOT NULL,
+    "marketId" TEXT,
     "resourceType" TEXT,
     "resourceIds" TEXT,
     "errorMessage" TEXT,
@@ -84,10 +120,19 @@ CREATE TABLE "UsageTracking" (
 );
 
 -- CreateIndex
+CREATE INDEX "Session_shop_idx" ON "Session"("shop");
+
+-- CreateIndex
 CREATE INDEX "Language_shop_idx" ON "Language"("shop");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Language_shop_code_key" ON "Language"("shop", "code");
+
+-- CreateIndex
+CREATE INDEX "Market_shop_idx" ON "Market"("shop");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Market_shop_shopifyId_key" ON "Market"("shop", "shopifyId");
 
 -- CreateIndex
 CREATE INDEX "Translation_shop_resourceType_resourceId_idx" ON "Translation"("shop", "resourceType", "resourceId");
@@ -96,10 +141,13 @@ CREATE INDEX "Translation_shop_resourceType_resourceId_idx" ON "Translation"("sh
 CREATE INDEX "Translation_shop_languageCode_idx" ON "Translation"("shop", "languageCode");
 
 -- CreateIndex
+CREATE INDEX "Translation_shop_marketId_idx" ON "Translation"("shop", "marketId");
+
+-- CreateIndex
 CREATE INDEX "Translation_shop_status_idx" ON "Translation"("shop", "status");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Translation_shop_resourceType_resourceId_field_languageCode_key" ON "Translation"("shop", "resourceType", "resourceId", "field", "languageCode");
+CREATE UNIQUE INDEX "Translation_shop_resourceType_resourceId_field_languageCode_marketId_key" ON "Translation"("shop", "resourceType", "resourceId", "field", "languageCode", "marketId");
 
 -- CreateIndex
 CREATE INDEX "TranslationJob_shop_status_idx" ON "TranslationJob"("shop", "status");
@@ -122,5 +170,3 @@ CREATE INDEX "UsageTracking_shop_idx" ON "UsageTracking"("shop");
 -- CreateIndex
 CREATE UNIQUE INDEX "UsageTracking_shop_period_key" ON "UsageTracking"("shop", "period");
 
--- CreateIndex
-CREATE INDEX "Session_shop_idx" ON "Session"("shop");

@@ -99,12 +99,12 @@ export default function Languages() {
     lang.name,
     lang.code.toUpperCase(),
     lang.isDefault ? (
-      <Badge status="success">Default</Badge>
+      <Badge tone="success">Default</Badge>
     ) : (
       <fetcher.Form method="post" key={lang.code}>
         <input type="hidden" name="action" value="setDefault" />
         <input type="hidden" name="code" value={lang.code} />
-        <Button submit plain size="micro">
+        <Button submit variant="plain" size="micro">
           Set as default
         </Button>
       </fetcher.Form>
@@ -112,7 +112,7 @@ export default function Languages() {
     <fetcher.Form method="post" key={`delete-${lang.code}`}>
       <input type="hidden" name="action" value="delete" />
       <input type="hidden" name="code" value={lang.code} />
-      <Button submit destructive plain size="micro">
+      <Button submit variant="plain" tone="critical" size="micro">
         Delete
       </Button>
     </fetcher.Form>,
@@ -133,19 +133,19 @@ export default function Languages() {
 
   return (
     <Page>
-      <TitleBar
-        title="Languages"
-        primaryAction={{
-          content: "Add Language",
-          onAction: () => setModalActive(true),
-        }}
-      />
+      <TitleBar title="Languages" />
       <Layout>
         <Layout.Section>
+          <InlineStack gap="300" align="end">
+            <Button onClick={() => setModalActive(true)} variant="primary">
+              Add Language
+            </Button>
+          </InlineStack>
           {languages.length === 0 ? (
             <Card>
               <EmptyState
                 heading="No languages configured"
+                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
                 action={{
                   content: "Add Language",
                   onAction: () => setModalActive(true),
@@ -164,14 +164,14 @@ export default function Languages() {
             </Card>
           )}
 
-          {fetcher.data?.error && (
-            <Banner status="critical" onDismiss={() => {}}>
+          {fetcher.data && 'error' in fetcher.data && (
+            <Banner tone="critical" onDismiss={() => {}}>
               {fetcher.data.error}
             </Banner>
           )}
 
-          {fetcher.data?.success && (
-            <Banner status="success" onDismiss={() => {}}>
+          {fetcher.data && 'success' in fetcher.data && fetcher.data.success && (
+            <Banner tone="success" onDismiss={() => {}}>
               Operation completed successfully
             </Banner>
           )}
