@@ -1,6 +1,6 @@
 # This file stores configurations for your Shopify app.
 
-scopes = "write_products"
+scopes = "read_products,write_products,read_content,write_content,read_metaobjects,write_metaobjects"
 
 [webhooks]
 api_version = "2024-10"
@@ -15,13 +15,27 @@ api_version = "2024-10"
   topics = [ "app/scopes_update" ]
   uri = "/webhooks/app/scopes_update"
 
-  # Webhooks can have filters
-  # Only receive webhooks for product updates with a product price >= 10.00
-  # See: https://shopify.dev/docs/apps/build/webhooks/customize/filters
-  # [[webhooks.subscriptions]]
-  # topics = ["products/update"]
-  # uri = "/webhooks/products/update"
-  # filter = "variants.price:>=10.00"
+  # Content update webhooks for translation sync
+  [[webhooks.subscriptions]]
+  topics = ["products/create", "products/update"]
+  uri = "/webhooks/products/update"
+
+  [[webhooks.subscriptions]]
+  topics = ["collections/create", "collections/update"]
+  uri = "/webhooks/collections/update"
+
+  [[webhooks.subscriptions]]
+  topics = ["pages/create", "pages/update"]
+  uri = "/webhooks/pages/update"
+
+  [[webhooks.subscriptions]]
+  topics = ["blogs/create", "blogs/update"]
+  uri = "/webhooks/blogs/update"
+
+  # Billing webhooks
+  [[webhooks.subscriptions]]
+  topics = ["app_subscriptions/update"]
+  uri = "/webhooks/app_subscriptions/update"
 
   # Mandatory compliance topic for public apps only
   # See: https://shopify.dev/docs/apps/build/privacy-law-compliance
