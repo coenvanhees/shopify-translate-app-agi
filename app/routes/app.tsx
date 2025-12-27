@@ -22,9 +22,12 @@ export default function App() {
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
         <Link to="/app" rel="home">
-          Home
+          Dashboard
         </Link>
-        <Link to="/app/additional">Additional page</Link>
+        <Link to="/app/translations">Translations</Link>
+        <Link to="/app/languages">Languages</Link>
+        <Link to="/app/subscription/manage">Subscription</Link>
+        <Link to="/app/settings">Settings</Link>
       </NavMenu>
       <Outlet />
     </AppProvider>
