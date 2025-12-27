@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:dev.sqlite"
 }
 
 model Session {
@@ -53,7 +53,7 @@ model Translation {
   resourceId      String   // Shopify resource ID (GID or numeric)
   field           String   // Field name (e.g., "title", "description", "metafield_key")
   languageCode    String   // ISO 639-1 language code
-  translatedValue String   @db.Text // Use Text type for longer content
+  translatedValue String   // Use Text type for longer content
   shop            String
   status          String   @default("draft") // "draft", "review", "published"
   createdAt       DateTime @default(now())
@@ -74,8 +74,8 @@ model TranslationJob {
   sourceLanguage String
   targetLanguage String
   resourceType   String?   // Optional: specific resource type
-  resourceIds    String?   @db.Text // JSON array of resource IDs
-  errorMessage   String?   @db.Text
+  resourceIds    String?   // JSON array of resource IDs
+  errorMessage   String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   completedAt    DateTime?
