@@ -5,12 +5,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
-// enough when changing adapters.
-// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
 datasource db {
-  provider = "sqlite"
-  url      = "file:dev.sqlite"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Session {
@@ -31,4 +28,108 @@ model Session {
   emailVerified       Boolean?  @default(false)
   refreshToken        String?
   refreshTokenExpires DateTime?
+
+  @@index([shop])
+}
+
+model Language {
+  id        String   @id @default(cuid())
+  code      String   // ISO 639-1 language code (e.g., "en", "fr", "es")
+  name      String   // Display name (e.g., "English", "French", "Spanish")
+  isDefault Boolean  @default(false)
+  shop      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  translations Translation[]
+
+  @@unique([shop, code])
+  @@index([shop])
+}
+
+model Translation {
+  id              String   @id @default(cuid())
+  resourceType    String   // "product", "collection", "page", "blog", etc.
+  resourceId      String   // Shopify resource ID (GID or numeric)
+  field           String   // Field name (e.g., "title", "description", "metafield_key")
+  languageCode    String   // ISO 639-1 language code
+  translatedValue String   @db.Text // Use Text type for longer content
+  shop            String
+  status          String   @default("draft") // "draft", "review", "published"
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  language Language @relation(fields: [languageCode, shop], references: [code, shop])
+
+  @@unique([shop, resourceType, resourceId, field, languageCode])
+  @@index([shop, resourceType, resourceId])
+  @@index([shop, languageCode])
+  @@index([shop, status])
+}
+
+model TranslationJob {
+  id             String    @id @default(cuid())
+  shop           String
+  status         String    // "pending", "processing", "completed", "failed"
+  sourceLanguage String
+  targetLanguage String
+  resourceType   String?   // Optional: specific resource type
+  resourceIds    String?   @db.Text // JSON array of resource IDs
+  errorMessage   String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  completedAt    DateTime?
+
+  @@index([shop, status])
+  @@index([shop, createdAt])
+}
+
+model Subscription {
+  id                    String    @id @default(cuid())
+  shop                  String    @unique
+  planId                String    // "basic", "pro", "enterprise"
+  planName              String    // Display name
+  status                String    // "active", "cancelled", "expired", "trial", "pending"
+  shopifyChargeId      String?   // Shopify's charge ID
+  shopifySubscriptionId String?  // Shopify's subscription ID
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+  trialEndsAt           DateTime?
+  cancelledAt           DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  usageLimits UsageLimit?
+
+  @@index([shop, status])
+}
+
+model UsageLimit {
+  id                String   @id @default(cuid())
+  subscriptionId    String   @unique
+  subscription      Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  
+  maxLanguages      Int      @default(1)
+  maxTranslations   Int?     // null = unlimited
+  maxProducts       Int?     // null = unlimited
+  autoTranslate     Boolean  @default(false)
+  translationMemory Boolean @default(false)
+  prioritySupport   Boolean  @default(false)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model UsageTracking {
+  id              String   @id @default(cuid())
+  shop            String
+  period          String   // "2024-01" format for monthly tracking
+  translationsCount Int    @default(0)
+  languagesCount    Int    @default(0)
+  productsCount     Int    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([shop, period])
+  @@index([shop])
 }
