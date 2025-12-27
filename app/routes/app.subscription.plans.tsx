@@ -1,5 +1,5 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, Link } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import {
   Page,
   Layout,
@@ -13,11 +13,11 @@ import {
   Divider,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../../shopify.server";
+import { authenticate } from "../shopify.server";
 import {
   SUBSCRIPTION_PLANS,
   getSubscription,
-} from "../../services/billing.server";
+} from "../services/billing.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
@@ -31,6 +31,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function SubscriptionPlans() {
   const { plans, currentSubscription } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
 
   return (
     <Page>
@@ -46,7 +47,7 @@ export default function SubscriptionPlans() {
             </Text>
 
             <Layout>
-              {plans.map((plan) => {
+              {plans.map((plan: any) => {
                 const isCurrentPlan = currentSubscription?.planId === plan.id;
                 const isActive = currentSubscription?.status === "active";
 
@@ -59,7 +60,7 @@ export default function SubscriptionPlans() {
                             {plan.name}
                           </Text>
                           {isCurrentPlan && isActive && (
-                            <Badge status="success">Current Plan</Badge>
+                            <Badge tone="success">Current Plan</Badge>
                           )}
                         </InlineStack>
 
@@ -107,9 +108,9 @@ export default function SubscriptionPlans() {
                         </BlockStack>
 
                         <Button
-                          primary={!isCurrentPlan}
+                          variant={!isCurrentPlan ? "primary" : "secondary"}
                           disabled={isCurrentPlan && isActive}
-                          url={`/app/subscription/checkout?plan=${plan.id}`}
+                          onClick={() => navigate(`/app/subscription/checkout?plan=${plan.id}`)}
                         >
                           {isCurrentPlan && isActive
                             ? "Current Plan"

@@ -47,23 +47,42 @@ model Language {
   @@index([shop])
 }
 
+model Market {
+  id          String   @id @default(cuid())
+  shopifyId   String   // Shopify Market ID (GID)
+  name        String   // Market name (e.g., "Europe", "North America")
+  enabled     Boolean  @default(true)
+  shop        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  translations Translation[]
+
+  @@unique([shop, shopifyId])
+  @@index([shop])
+}
+
 model Translation {
   id              String   @id @default(cuid())
   resourceType    String   // "product", "collection", "page", "blog", etc.
   resourceId      String   // Shopify resource ID (GID or numeric)
   field           String   // Field name (e.g., "title", "description", "metafield_key")
   languageCode    String   // ISO 639-1 language code
+  marketId        String?  // Shopify Market ID (optional - for market-specific translations)
   translatedValue String   // Use Text type for longer content
   shop            String
   status          String   @default("draft") // "draft", "review", "published"
+  autoTranslated  Boolean  @default(false) // Whether this was auto-translated by AI
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   language Language @relation(fields: [languageCode, shop], references: [code, shop])
+  market   Market?  @relation(fields: [marketId], references: [id])
 
-  @@unique([shop, resourceType, resourceId, field, languageCode])
+  @@unique([shop, resourceType, resourceId, field, languageCode, marketId])
   @@index([shop, resourceType, resourceId])
   @@index([shop, languageCode])
+  @@index([shop, marketId])
   @@index([shop, status])
 }
 
@@ -73,6 +92,7 @@ model TranslationJob {
   status         String    // "pending", "processing", "completed", "failed"
   sourceLanguage String
   targetLanguage String
+  marketId       String?   // Target market ID
   resourceType   String?   // Optional: specific resource type
   resourceIds    String?   // JSON array of resource IDs
   errorMessage   String?

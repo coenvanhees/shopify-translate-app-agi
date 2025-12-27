@@ -6,9 +6,11 @@ export interface TranslationInput {
   resourceId: string;
   field: string;
   languageCode: string;
+  marketId?: string; // Optional market ID for market-specific translations
   translatedValue: string;
   shop: string;
   status?: string;
+  autoTranslated?: boolean;
 }
 
 export async function createTranslation(input: TranslationInput) {
@@ -28,21 +30,24 @@ export async function createTranslation(input: TranslationInput) {
 
   const translation = await prisma.translation.upsert({
     where: {
-      shop_resourceType_resourceId_field_languageCode: {
+      shop_resourceType_resourceId_field_languageCode_marketId: {
         shop: input.shop,
         resourceType: input.resourceType,
         resourceId: input.resourceId,
         field: input.field,
         languageCode: input.languageCode,
+        marketId: input.marketId || null,
       },
     },
     create: {
       ...input,
       status: input.status || "draft",
+      autoTranslated: input.autoTranslated || false,
     },
     update: {
       translatedValue: input.translatedValue,
       status: input.status || "draft",
+      autoTranslated: input.autoTranslated || false,
       updatedAt: new Date(),
     },
   });
@@ -56,16 +61,19 @@ export async function createTranslation(input: TranslationInput) {
 export async function getTranslations(
   shop: string,
   resourceType: string,
-  resourceId: string
+  resourceId: string,
+  marketId?: string
 ) {
   return prisma.translation.findMany({
     where: {
       shop,
       resourceType,
       resourceId,
+      ...(marketId ? { marketId } : {}),
     },
     include: {
       language: true,
+      market: true,
     },
     orderBy: {
       languageCode: "asc",
@@ -78,20 +86,23 @@ export async function getTranslation(
   resourceType: string,
   resourceId: string,
   field: string,
-  languageCode: string
+  languageCode: string,
+  marketId?: string
 ) {
   return prisma.translation.findUnique({
     where: {
-      shop_resourceType_resourceId_field_languageCode: {
+      shop_resourceType_resourceId_field_languageCode_marketId: {
         shop,
         resourceType,
         resourceId,
         field,
         languageCode,
+        marketId: marketId || null,
       },
     },
     include: {
       language: true,
+      market: true,
     },
   });
 }
@@ -103,16 +114,18 @@ export async function updateTranslation(
   field: string,
   languageCode: string,
   translatedValue: string,
-  status?: string
+  status?: string,
+  marketId?: string
 ) {
   return prisma.translation.update({
     where: {
-      shop_resourceType_resourceId_field_languageCode: {
+      shop_resourceType_resourceId_field_languageCode_marketId: {
         shop,
         resourceType,
         resourceId,
         field,
         languageCode,
+        marketId: marketId || null,
       },
     },
     data: {
@@ -128,16 +141,18 @@ export async function deleteTranslation(
   resourceType: string,
   resourceId: string,
   field: string,
-  languageCode: string
+  languageCode: string,
+  marketId?: string
 ) {
   return prisma.translation.delete({
     where: {
-      shop_resourceType_resourceId_field_languageCode: {
+      shop_resourceType_resourceId_field_languageCode_marketId: {
         shop,
         resourceType,
         resourceId,
         field,
         languageCode,
+        marketId: marketId || null,
       },
     },
   });

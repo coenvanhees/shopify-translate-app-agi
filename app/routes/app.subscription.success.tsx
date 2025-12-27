@@ -9,8 +9,8 @@ import {
   Banner,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../../shopify.server";
-import { getSubscription } from "../../services/billing.server";
+import { authenticate } from "../shopify.server";
+import { getSubscription } from "../services/billing.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
@@ -27,13 +27,13 @@ export default function SubscriptionSuccess() {
       <TitleBar title="Subscription Activated" />
       <Card>
         <BlockStack gap="400">
-          <Banner status="success" title="Subscription Activated!">
+          <Banner tone="success" title="Subscription Activated!">
             Your {subscription?.planName} plan is now active.
           </Banner>
           <Text as="p" variant="bodyMd">
             You can now start using all the features included in your plan.
           </Text>
-          <Button url="/app" primary>
+          <Button url="/app" variant="primary">
             Go to Dashboard
           </Button>
         </BlockStack>

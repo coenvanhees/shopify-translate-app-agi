@@ -60,16 +60,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function Translations() {
   const { translations, languages } = useLoaderData<typeof loader>();
 
-  const resourceItem = (item: any) => {
-    const { id, resourceType, resourceId, field, languageCode, status, language } = item;
+  const resourceItem = (item: any, itemId: string, index: number) => {
+    const { resourceType, resourceId, field, languageCode, status, language, market } = item;
 
     return {
-      id,
-      url: `/app/translations/${resourceType}/${resourceId}?language=${languageCode}`,
-      media: <Badge status={status === "published" ? "success" : "attention"}>
+      id: itemId,
+      url: `/app/translations/${resourceType}/${resourceId}?language=${languageCode}${market ? `&market=${market.id}` : ""}`,
+      media: <Badge tone={status === "published" ? "success" : "attention"}>
         {status}
       </Badge>,
-      accessibilityLabel: `${resourceType} ${field} in ${language.name}`,
+      accessibilityLabel: `${resourceType} ${field} in ${language.name}${market ? ` for ${market.name}` : ""}`,
       name: (
         <BlockStack gap="100">
           <Text as="span" variant="bodyMd" fontWeight="semibold">
@@ -77,6 +77,7 @@ export default function Translations() {
           </Text>
           <Text as="span" variant="bodySm" tone="subdued">
             {language.name} ({languageCode})
+            {market && ` • Market: ${market.name}`}
           </Text>
         </BlockStack>
       ),
@@ -92,6 +93,7 @@ export default function Translations() {
             <Card>
               <EmptyState
                 heading="No translations found"
+                image="https://cdn.shopify.com/s/files/1/0262/4071/2726/files/emptystate-files.png"
                 action={{
                   content: "Start Translating",
                   url: "/app",

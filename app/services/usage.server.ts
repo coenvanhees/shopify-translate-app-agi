@@ -34,10 +34,10 @@ export async function checkUsageLimits(shop: string) {
       limits.maxLanguages === -1 ||
       usage.languagesCount < limits.maxLanguages,
     translations:
-      limits.maxTranslations === -1 ||
-      usage.translationsCount < limits.maxTranslations,
+      limits.maxTranslations === null || limits.maxTranslations === -1 ||
+      usage.translationsCount < (limits.maxTranslations || 0),
     products:
-      limits.maxProducts === -1 || usage.productsCount < limits.maxProducts,
+      limits.maxProducts === null || limits.maxProducts === -1 || usage.productsCount < (limits.maxProducts || 0),
   };
 
   const allowed = Object.values(checks).every((check) => check);

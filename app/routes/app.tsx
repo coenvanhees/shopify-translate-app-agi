@@ -24,7 +24,8 @@ export default function App() {
         <Link to="/app" rel="home">
           Dashboard
         </Link>
-        <Link to="/app/translations">Translations</Link>
+        <Link to="/app/translations/select">New Translation</Link>
+        <Link to="/app/translations">All Translations</Link>
         <Link to="/app/languages">Languages</Link>
         <Link to="/app/subscription/manage">Subscription</Link>
         <Link to="/app/settings">Settings</Link>

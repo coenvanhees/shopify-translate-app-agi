@@ -176,3 +176,73 @@ export async function fetchPage(admin: any, pageId: string) {
   };
 }
 
+export async function fetchCollections(admin: any, limit: number = 50) {
+  const response = await admin.graphql(
+    `#graphql
+      query getCollections($first: Int!) {
+        collections(first: $first) {
+          edges {
+            node {
+              id
+              title
+              description
+              handle
+            }
+          }
+        }
+      }`,
+    {
+      variables: { first: limit },
+    }
+  );
+
+  const data = await response.json();
+  return data.data?.collections?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    type: "collection" as const,
+    title: edge.node.title,
+    fields: [
+      { field: "title", value: edge.node.title || "", type: "text" },
+      {
+        field: "description",
+        value: edge.node.description || "",
+        type: "html",
+      },
+      { field: "handle", value: edge.node.handle || "", type: "text" },
+    ],
+  })) || [];
+}
+
+export async function fetchPages(admin: any, limit: number = 50) {
+  const response = await admin.graphql(
+    `#graphql
+      query getPages($first: Int!) {
+        pages(first: $first) {
+          edges {
+            node {
+              id
+              title
+              body
+              handle
+            }
+          }
+        }
+      }`,
+    {
+      variables: { first: limit },
+    }
+  );
+
+  const data = await response.json();
+  return data.data?.pages?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    type: "page" as const,
+    title: edge.node.title,
+    fields: [
+      { field: "title", value: edge.node.title || "", type: "text" },
+      { field: "body", value: edge.node.body || "", type: "html" },
+      { field: "handle", value: edge.node.handle || "", type: "text" },
+    ],
+  })) || [];
+}
+

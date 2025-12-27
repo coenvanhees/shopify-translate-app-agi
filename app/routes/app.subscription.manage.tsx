@@ -18,12 +18,12 @@ import {
   List,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../../shopify.server";
+import { authenticate } from "../shopify.server";
 import {
   getSubscription,
   cancelSubscription,
   checkSubscriptionStatus,
-} from "../../services/billing.server";
+} from "../services/billing.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
@@ -58,7 +58,7 @@ export default function ManageSubscription() {
       <Page>
         <TitleBar title="Subscription" />
         <Card>
-          <Banner status="info">
+          <Banner tone="info">
             You don't have an active subscription.{" "}
             <a href="/app/subscription/plans">Choose a plan</a>
           </Banner>
@@ -82,7 +82,7 @@ export default function ManageSubscription() {
                   <Text as="h2" variant="headingMd">
                     {subscription.planName}
                   </Text>
-                  <Badge status={isActive ? "success" : "attention"}>
+                  <Badge tone={isActive ? "success" : "attention"}>
                     {subscription.status}
                   </Badge>
                 </BlockStack>
@@ -154,7 +154,8 @@ export default function ManageSubscription() {
                     <input type="hidden" name="action" value="cancel" />
                     <Button
                       submit
-                      destructive
+                      variant="plain"
+                      tone="critical"
                       loading={fetcher.state === "submitting"}
                     >
                       Cancel Subscription
@@ -163,8 +164,8 @@ export default function ManageSubscription() {
                 </>
               )}
 
-              {fetcher.data?.success && (
-                <Banner status="success">{fetcher.data.message}</Banner>
+              {fetcher.data && 'success' in fetcher.data && fetcher.data.success && (
+                <Banner tone="success">{'message' in fetcher.data ? String(fetcher.data.message) : 'Success'}</Banner>
               )}
             </BlockStack>
           </Card>
